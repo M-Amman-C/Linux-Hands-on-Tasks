@@ -1,0 +1,33 @@
+Edit the file /etc/profile.d/command_logger.sh to apply it system-wide:
+
+sudo nano /etc/profile.d/command_logger.sh
+Paste this:
+
+#--------------------------------------------------------Code start----------------------------------
+# /etc/profile.d/command_logger.sh
+
+LOG_FILE="/var/log/command_history.log"
+
+# Ensure log file exists and permissions are correct
+touch "$LOG_FILE"
+chmod 600 "$LOG_FILE"
+chown root:root "$LOG_FILE"
+
+# Save each command to the log file with timestamp, user, and working directory
+export HISTTIMEFORMAT="%F %T "
+export HISTFILESIZE=10000
+export HISTSIZE=10000
+
+# Append each command to log file (excluding the command number)
+trap 'echo "$(date "+%F %T") $(whoami) [$$] $(history 1 | sed "s/^ *[0-9]* *//") (cwd: $PWD)" >> "$LOG_FILE"' DEBUG
+
+#--------------------------------------------------------Code End----------------------------------------
+
+
+
+🔁 Step 2: Apply the script
+
+
+This will apply to all users on the next login. You can test it immediately by sourcing the script:
+
+source /etc/profile.d/command_logger.sh
