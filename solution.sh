@@ -73,14 +73,16 @@ echo "----- Task 3 -----"
 lsblk
 
 # Create partition (automated using fdisk)
-echo -e "g\no\nn\np\n1\n\n+1G\nw" | fdisk /dev/sdb
+echo -e "g\nw" | fdisk /dev/sdb
+echo -e "o\nn\np\n1\n\n+1G\nw" | fdisk /dev/sdb
 partprobe /dev/sdb
 
 # Create physical volume, volume group and logical volume
 pvcreate /dev/sdb1
 vgcreate vg_storage /dev/sdb1
 lvcreate -L 512M -n lv_data vg_storage
-mkfs.ext4 /dev/vg_storage/lv_data
+wipefs -a /dev/vg_storage/lv_data
+mkfs.ext4 -F /dev/vg_storage/lv_data
 
 mkdir -p /mnt/data
 
