@@ -26,14 +26,14 @@ failed_properties=()
 if last -s -60min | grep -q root; then
     test1_obtained_marks=$((test1_obtained_marks + 5))
 else
-    failed_properties+=("Login/Switch to root user")
+    failed_properties+=("Question 1")
 fi
 
 # Q-2: Check if directory logbackup exists in /root
 if ls /root/ | grep -q logbackup; then
     test1_obtained_marks=$((test1_obtained_marks + 5))
 else
-    failed_properties+=("logbackup directory creation")
+    failed_properties+=("Question 2")
 fi
 
 # Q-3: Check if .log files copied to logbackup match in number
@@ -43,28 +43,28 @@ backup_files_count=$(ls /root/logbackup/* 2>/dev/null | wc -l)
 if [ "$log_files_count" -eq "$backup_files_count" ]; then
     test1_obtained_marks=$((test1_obtained_marks + 5))
 else
-    failed_properties+=("Copying .log files")
+    failed_properties+=("Question 3")
 fi
 
 # Q-4: Check if logs.tar.gz archive is created in /root
 if [ -f /root/logs.tar.gz ]; then
     test1_obtained_marks=$((test1_obtained_marks + 5))
 else
-    failed_properties+=("logs.tar.gz archive creation")
+    failed_properties+=("Question 4")
 fi
 
 # Q-6: Check if error_report.txt in HOME exists and contains 'error'
 if [ -s "$HOME/error_report.txt" ] && grep -iq "error" "$HOME/error_report.txt"; then
     test1_obtained_marks=$((test1_obtained_marks + 5))
 else
-    failed_properties+=("error_report.txt validation")
+    failed_properties+=("Question 6")
 fi
 
 # Q-7: Check if errors.log exists and is non-empty
 if [ -s "$HOME/errors.log" ]; then
     test1_obtained_marks=$((test1_obtained_marks + 5))
 else
-    failed_properties+=("errors.log existence")
+    failed_properties+=("Question 7")
 fi
 
 # Q-8: Check if valid hard link to logs.tar.gz exists
@@ -72,7 +72,7 @@ if [ -f "$HOME/logs_backup_link" ] && \
    [ "$(stat --format='%i' /root/logs.tar.gz 2>/dev/null)" = "$(stat --format='%i' $HOME/logs_backup_link 2>/dev/null)" ]; then
     test1_obtained_marks=$((test1_obtained_marks + 5))
 else
-    failed_properties+=("Hard link to logs.tar.gz")
+    failed_properties+=("Question 9")
 fi
 
 # Q-9: Check if valid soft link exists to logs.tar.gz
@@ -80,7 +80,7 @@ if [ -L "$HOME/latest_logs.tar.gz" ] && \
    [ "$(readlink $HOME/latest_logs.tar.gz)" = "/root/logs.tar.gz" ]; then
     test1_obtained_marks=$((test1_obtained_marks + 5))
 else
-    failed_properties+=("Soft link to logs.tar.gz")
+    failed_properties+=("Question 9")
 fi
 
 # Final Test Status
@@ -107,56 +107,56 @@ test2_failed_properties=()
 if grep -E "yes\s+>\s*/dev/null\s*&?" "$HIST_FILE" &>/dev/null; then
     test2_obtained_marks=$((test2_obtained_marks + 5))
 else
-    test2_failed_properties+=("Start dummy process")
+    test2_failed_properties+=("Question 1")
 fi
 
 # Q-2: Check and lower its priority to 5
 if grep -E "renice\s+5\s+|nice\s+-n\s+5\s+" "$HIST_FILE" &>/dev/null; then
     test2_obtained_marks=$((test2_obtained_marks + 5))
 else
-    test2_failed_properties+=("Change priority to 5")
+    test2_failed_properties+=("Question 2")
 fi
 
 # Q-3: View current tuning profile
 if grep -E "tuned-adm\s+active" "$HIST_FILE" &>/dev/null; then
     test2_obtained_marks=$((test2_obtained_marks + 5))
 else
-    test2_failed_properties+=("View tuning profile")
+    test2_failed_properties+=("Question 3")
 fi
 
 # Q-4: Switch to “throughput-performance” profile
 if grep -E "tuned-adm\s+profile\s+throughput-performance" "$HIST_FILE" &>/dev/null; then
     test2_obtained_marks=$((test2_obtained_marks + 5))
 else
-    test2_failed_properties+=("Switch to throughput-performance profile")
+    test2_failed_properties+=("Question 4")
 fi
 
 # Q-5: View logs from the last boot using journalctl
 if grep -E "journalctl\s+--boot|journalctl\s+-b" "$HIST_FILE" &>/dev/null; then
     test2_obtained_marks=$((test2_obtained_marks + 5))
 else
-    test2_failed_properties+=("View logs from last boot")
+    test2_failed_properties+=("Question 5")
 fi
 
 # Q-6: Filter logs by service name (sshd)
 if grep -E "journalctl\s+.*-u\s+sshd" "$HIST_FILE" &>/dev/null; then
     test2_obtained_marks=$((test2_obtained_marks + 5))
 else
-    test2_failed_properties+=("Filter sshd logs")
+    test2_failed_properties+=("Question 6")
 fi
 
 # Q-7: Save logs to a file named sshd_logs.txt
 if grep -iE "journalctl.*sshd.*.*sshd_logs\.txt.*" "$HIST_FILE" &>/dev/null; then
     test2_obtained_marks=$((test2_obtained_marks + 5))
 else
-    test2_failed_properties+=("Save logs to sshd_logs.txt")
+    test2_failed_properties+=("Question 7")
 fi
 
 # Q-8: Configure persistent logging
 if grep -q "Storage=persistent" /etc/systemd/journald.conf; then
     test2_obtained_marks=$((test2_obtained_marks + 5))
 else
-    test2_failed_properties+=("Persistent journald logging")
+    test2_failed_properties+=("Question 8")
 fi
 
 # Final Test Status
@@ -184,49 +184,57 @@ test3_failed_properties=()
 if grep -E "lsblk|fdisk\s+-l|parted\s+-l" "$HIST_FILE" &>/dev/null; then
     test3_obtained_marks=$((test3_obtained_marks + 5))
 else
-    test3_failed_properties+=("List disks (/dev/sdb)")
+    test3_failed_properties+=("Question 1")
 fi
+
+sdb1_exist=0
 
 # Q-2: Create a new primary partition of at least 1GB on /dev/sdb
 if lsblk -b /dev/sdb | awk '$4 >= 1000000000 && $1 ~ /sdb[0-9]/' | grep -q "sdb"; then
     test3_obtained_marks=$((test3_obtained_marks + 5))
+    sdb1_exist=1
 else
-    test3_failed_properties+=("Create 1GB+ partition on /dev/sdb")
+    test3_failed_properties+=("Question 2")
 fi
 
-# Q-4: Create a volume group called vg_storage
-if vgs | grep -q "vg_storage"; then
-    test3_obtained_marks=$((test3_obtained_marks + 5))
+if [ "$sdb1_exist" -eq 1 ]; then
+	# Q-4: Create a volume group called vg_storage
+	if vgs | grep -q "vg_storage"; then
+		test3_obtained_marks=$((test3_obtained_marks + 5))
+	else
+		test3_failed_properties+=("Question 4")
+	fi
+
+	# Q-5: Create a 512MB logical volume called lv_data in vg_storage
+	if lvs --units m --nosuffix | awk '$1 == "lv_data" && $2 == "vg_storage" && $4 >= 500 && $4 <= 600' | grep -q "lv_data"; then
+		test3_obtained_marks=$((test3_obtained_marks + 5))
+	else
+		test3_failed_properties+=("Question 5")
+	fi
+	
+	# Q-6: Format the logical volume with ext4
+	if blkid -o value -s TYPE /dev/vg_storage/lv_data 2>/dev/null | grep -q "ext4"; then
+		test3_obtained_marks=$((test3_obtained_marks + 5))
+	else
+		test3_failed_properties+=("Question 6")
+	fi
 else
-    test3_failed_properties+=("Create volume group vg_storage")
+	test3_failed_properties+=("Question 4 Question 5 Question 6")
 fi
 
-# Q-5: Create a 512MB logical volume called lv_data in vg_storage
-if lvs --units m --nosuffix | awk '$1 == "lv_data" && $2 == "vg_storage" && $4 >= 500 && $4 <= 600' | grep -q "lv_data"; then
-    test3_obtained_marks=$((test3_obtained_marks + 5))
-else
-    test3_failed_properties+=("Create 512MB LV lv_data in vg_storage")
-fi
-
-# Q-6: Format the logical volume with ext4
-if blkid -o value -s TYPE /dev/vg_storage/lv_data 2>/dev/null | grep -q "ext4"; then
-    test3_obtained_marks=$((test3_obtained_marks + 5))
-else
-    test3_failed_properties+=("Format LV with ext4")
-fi
 
 # Q-7: Create a mount point /mnt/data
 if [ -d "/mnt/data" ]; then
     test3_obtained_marks=$((test3_obtained_marks + 5))
 else
-    test3_failed_properties+=("Create /mnt/data mount point")
+    test3_failed_properties+=("Question 7")
 fi
 
 # Q-8: Mount it permanently (Check /etc/fstab for /mnt/data)
 if grep -q "/mnt/data" /etc/fstab; then
     test3_obtained_marks=$((test3_obtained_marks + 5))
 else
-    test3_failed_properties+=("Add mount to /etc/fstab")
+    test3_failed_properties+=("Question 8")
 fi
 
 # Final Test Status
@@ -254,19 +262,19 @@ test4_failed_properties=()
 if systemctl is-active firewalld &>/dev/null; then
     test4_obtained_marks=$((test4_obtained_marks + 5))
 else
-    test4_failed_properties+=("firewalld not running")
+    test4_failed_properties+=("Question 1")
 fi
 
 # Q-2: Add a rule to allow only SSH (port 22)
 if firewall-cmd --list-all | grep -q 'ssh'; then
     test4_obtained_marks=$((test4_obtained_marks + 5))
 else
-    test4_failed_properties+=("SSH not allowed")
+    test4_failed_properties+=("Question 2")
 fi
 
 # Q-3: Block HTTP traffic explicitly (port 80)
 if firewall-cmd --list-all | grep -q 'http'; then
-    test4_failed_properties+=("HTTP still allowed")
+    test4_failed_properties+=("Question 3")
 else
     test4_obtained_marks=$((test4_obtained_marks + 5))
 fi
@@ -278,14 +286,14 @@ firewall-cmd --list-services | grep -qw 'http' && HTTP_OK=0 || HTTP_OK=1
 if [[ $SSH_OK -eq 1 && $HTTP_OK -eq 1 ]]; then
     test4_obtained_marks=$((test4_obtained_marks + 10))
 else
-    test4_failed_properties+=("SSH/HTTP service check failed")
+    test4_failed_properties+=("Question 4")
 fi
 
 # Q-5: Change the default system target to no GUI (multi-user.target)
 if systemctl get-default | grep -q 'multi-user.target'; then
     test4_obtained_marks=$((test4_obtained_marks + 5))
 else
-    test4_failed_properties+=("Default target not multi-user.target")
+    test4_failed_properties+=("Question 5")
 fi
 
 # Final Test Status
@@ -303,6 +311,7 @@ results=$(echo "$results" | jq ".obtained_maximum_marks += $test4_obtained_marks
 
 #-------------------------------------------------Task 5---------------------------------------------
 
+
 test5_obtained_marks=0
 test5_failed_properties=()
 
@@ -310,15 +319,17 @@ test5_failed_properties=()
 if id developer1 &>/dev/null; then
     test5_obtained_marks=$((test5_obtained_marks + 5))
 else
-    test5_failed_properties+=("developer1 user missing")
+    test5_failed_properties+=("Question 1")
 fi
+
+
 
 # Check home directory (5 marks)
 actual_home=$(getent passwd developer1 | cut -d: -f6)
 if [[ -d "$actual_home" && "$actual_home" == "/devhome/developer1" ]]; then
     test5_obtained_marks=$((test5_obtained_marks + 5))
 else
-    test5_failed_properties+=("developer1 home directory incorrect or missing")
+    test5_failed_properties+=("Question 1.1")
 fi
 
 # Check shell (5 marks)
@@ -326,74 +337,103 @@ actual_shell=$(getent passwd developer1 | cut -d: -f7)
 if [[ "$actual_shell" == "/bin/bash" ]]; then
     test5_obtained_marks=$((test5_obtained_marks + 5))
 else
-    test5_failed_properties+=("developer1 shell incorrect")
+    test5_failed_properties+=("Question 1.2")
 fi
 
 # Check comment (5 marks)
-actual_comment=$(getent passwd developer1 | cut -d: -f5)
+actual_comment=$(sudo getent passwd developer1 | cut -d: -f5)
 if [[ "$actual_comment" == "Frontend Developer" ]]; then
     test5_obtained_marks=$((test5_obtained_marks + 5))
 else
-    test5_failed_properties+=("developer1 comment incorrect")
+    test5_failed_properties+=("Question 1.3")
 fi
 
 # Check password for developer1 (5 marks)
-result=$(sshpass -p "creator" ssh -o StrictHostKeyChecking=no developer1@localhost exit)
-if [[ "$result" =~ "Permission denied" ]]; then
-    test5_failed_properties+=("developer1 password not set correctly")
+if id developer1 &>/dev/null; then
+	result=$(sshpass -p "creator" ssh -o StrictHostKeyChecking=no developer1@localhost exit)
+	if [[ "$result" =~ "Permission denied" ]]; then
+		test5_failed_properties+=("Question 2")
+	else
+		test5_obtained_marks=$((test5_obtained_marks + 5))
+	fi
 else
-    test5_obtained_marks=$((test5_obtained_marks + 5))
+	test5_failed_properties+=("Question 2")
 fi
 
-# Check groups created (5 marks)
-if grep -q 'devops' /etc/group && grep -q 'qa' /etc/group && grep -q 'design' /etc/group; then
-    test5_obtained_marks=$((test5_obtained_marks + 5))
-else
-    test5_failed_properties+=("One or more groups (devops, qa, design) missing")
-fi
+
+
 
 #Check Password Policy
-
-actual_max=$(chage -l developer1 | grep "Maximum" | awk -F: '{print $2}' | xargs)
-actual_min=$(chage -l  developer1 | grep "Minimum" | awk -F: '{print $2}' | xargs)
-actual_warn=$(chage -l  developer1 | grep "warning" | awk -F: '{print $2}' | xargs)
-if [[ $actual_max == 90 && $actual_min == 1 && $actual_warn == 7 ]]; then
-    test5_obtained_marks=$((test5_obtained_marks + 5))
+if id developer1 &>/dev/null; then
+	actual_max=$(sudo chage -l developer1 | grep "Maximum" | awk -F: '{print $2}' | xargs)
+	actual_min=$(sudo chage -l  developer1 | grep "Minimum" | awk -F: '{print $2}' | xargs)
+	actual_warn=$(sudo chage -l  developer1 | grep "warning" | awk -F: '{print $2}' | xargs)
+	if [[ $actual_max == 90 && $actual_min == 1 && $actual_warn == 7 ]]; then
+    		test5_obtained_marks=$((test5_obtained_marks + 5))
+	else
+    		test5_failed_properties+=("Question 3")
+	fi
 else
-    test5_failed_properties+=("Password Policy Wrong")
+	test5_failed_properties+=("Question 3")
 fi
 
 
 
-# Check if developer1 added to devops and qa (7 marks)
+# Check groups created (5 marks)
+
+if grep -q 'devops' /etc/group && grep -q 'qa' /etc/group && grep -q 'design' /etc/group; then
+	test5_obtained_marks=$((test5_obtained_marks + 5))
+else
+	test5_failed_properties+=("Question 4")
+fi
+
+
+
+# Check if developer1 added to devops and qa (5 marks)
 if grep -Eq "usermod.*(-aG.*(devops,qa|qa,devops).*(developer1)|developer1.*-aG.*(devops,qa|qa,devops))" "$HIST_FILE" || \
    ( grep -Eiq "usermod.*(-aG.*devops.*developer1|developer1.*-aG.*devops)" "$HIST_FILE" && \
      grep -Eiq "usermod.*(-aG.*qa.*developer1|developer1.*-aG.*qa)" "$HIST_FILE" ); then
     test5_obtained_marks=$((test5_obtained_marks + 5))
 else
-    test5_failed_properties+=("developer1 not added to devops and qa properly")
+    test5_failed_properties+=("Question 5")
 fi
 
 # Check if developer1 removed from qa (5 marks)
-if id -nG developer1 | grep -qw "qa"; then
-    test5_failed_properties+=("developer1 not removed from qa group")
+if id developer1 &>/dev/null; then
+	if id -nG developer1 | grep -qw "qa"; then
+		test5_failed_properties+=("Question 6")
+	else
+		test5_obtained_marks=$((test5_obtained_marks + 5))
+	fi
 else
-    test5_obtained_marks=$((test5_obtained_marks + 5))
+	test5_failed_properties+=("Question 6")
 fi
 
-# Check adminuser created (5 marks)
+# Check adminuser created and password set(5 marks)
+
+
 if id adminuser &>/dev/null; then
-    test5_obtained_marks=$((test5_obtained_marks + 5))
+    result=$(sshpass -p "creator" ssh -o StrictHostKeyChecking=no developer1@localhost exit)
+    if [[ "$result" =~ "Permission denied" ]]; then
+	    test5_failed_properties+=("Question 7")
+    else
+	    test5_obtained_marks=$((test5_obtained_marks + 5))
+    fi
 else
-    test5_failed_properties+=("adminuser not created")
+    test5_failed_properties+=("Question 7")
 fi
 
 # Check if adminuser has sudo privileges (8 marks)
-if sudo -lU adminuser | grep -q 'ALL' 2>/dev/null; then
-    test5_obtained_marks=$((test5_obtained_marks + 5))
+if id adminuser &>/dev/null; then
+	if sudo -lU adminuser | grep -q 'ALL' 2>/dev/null; then
+		test5_obtained_marks=$((test5_obtained_marks + 5))
+	else
+		test5_failed_properties+=("Question 8")
+	fi
 else
-    test5_failed_properties+=("adminuser lacks sudo privileges")
+        test5_failed_properties+=("Question 8")
 fi
+
 
 # Final Task Status
 if [ "$test5_obtained_marks" -eq 55 ]; then
@@ -408,10 +448,7 @@ fi
 results=$(echo "$results" | jq ".tasks += [{\"no\": 5, \"name\": \"Task 5\", \"obtained_marks\": $test5_obtained_marks, \"maximum_marks\": 55, \"message\": \"$test5_message\"}]")
 results=$(echo "$results" | jq ".obtained_maximum_marks += $test5_obtained_marks")
 
-
 echo "$results" | jq
-
-
 
 
 
